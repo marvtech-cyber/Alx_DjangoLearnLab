@@ -6,6 +6,8 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required
+from django.shortcuts import render, get_object_or_404, redirect
 
 
 #function based view to list all books
@@ -100,3 +102,35 @@ def librarian_check(user):
 @user_passes_test(librarian_check)
 def librarian_view(request):
     return render(request, 'librarian_view.html')
+
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book(request):
+    # Implement adding a book here
+    if request.method == 'POST':
+        # Process form data
+        pass
+    else:
+        # Render form
+        pass
+    return render(request, 'add_book.html') 
+
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        # Process form data to update the book
+        pass
+    else:
+        # Render form with book data
+        pass
+    return render(request, 'edit_book.html', {'book': book})
+
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        book.delete()
+        return redirect('book_list')  
+    else:
+        return render(request, 'delete_book.html', {'book': book})
+    

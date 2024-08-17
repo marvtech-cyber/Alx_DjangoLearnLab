@@ -58,34 +58,3 @@ def create_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
     
 
-@permission_required('relationship_app.can_add_book', raise_exception=True)
-def add_book(request):
-    # Implement adding a book here
-    if request.method == 'POST':
-        # Process form data
-        pass
-    else:
-        # Render form
-        pass
-    return render(request, 'add_book.html') 
-
-@permission_required('relationship_app.can_change_book', raise_exception=True)
-def edit_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
-    if request.method == 'POST':
-        # Process form data to update the book
-        pass
-    else:
-        # Render form with book data
-        pass
-    return render(request, 'edit_book.html', {'book': book})
-
-@permission_required('relationship_app.can_delete_book', raise_exception=True)
-def delete_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
-    if request.method == 'POST':
-        book.delete()
-        return redirect('book_list')  
-    else:
-        return render(request, 'delete_book.html', {'book': book})
-    
