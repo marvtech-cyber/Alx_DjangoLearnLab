@@ -7,7 +7,7 @@ from django.views.generic import DetailView
 def book_listView(request):
 
     # fetch all books from database
-    books = books.objects.all()
+    books = Book.objects.all()
 
     # context dictionary with book list
     context = {'book_list': books}
