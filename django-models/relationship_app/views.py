@@ -68,11 +68,11 @@ def logoutview(request):
     return redirect('login_view')
 
 
-def admin_check(user):
+def Admin_check(user):
     return user.userprofile.role == 'Admin'
 
-@user_passes_test(admin_check)
-def admin_view(request):
+@user_passes_test(Admin_check)
+def Admin_view(request):
     return render(request, 'admin_view.html')
 
 def member_check(user):
