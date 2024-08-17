@@ -5,13 +5,13 @@ from .models import Library
 from django.views.generic.detail import DetailView
 
 #function based view to list all books
-def book_listView(request):
+def list_books(request):
 
     # fetch all books from database
     books = Book.objects.all()
 
     # context dictionary with book list
-    context = {'book_list': books}
+    context = {'list_books': books}
 
     return render(request, 'relationship_app/list_books.html', context)
 
