@@ -68,23 +68,23 @@ def logoutview(request):
     return redirect('login_view')
 
 
-def Admin_check(user):
-    return user.userprofile.role == 'Admin'
+def is_admin(user):
+    return user.is_authenticated and user.userprofile.role == 'Admin'
 
-@user_passes_test(Admin_check)
-def Admin_view(request):
+def is_librarian(user):
+    return user.is_authenticated and user.userprofile.role == 'Librarian'
+
+def is_member(user):
+    return user.is_authenticated and user.userprofile.role == 'Member'
+
+@user_passes_test(is_admin)
+def admin_view(request):
     return render(request, 'admin_view.html')
 
-def member_check(user):
-    return user.userprofile.role == 'Member'
-
-@user_passes_test(member_check)
-def member_view(request):
-    return render(request, 'member_view.html')
-
-def librarian_check(user):
-    return user.userprofile.role == 'Librarian'
-
-@user_passes_test(librarian_check)
+@user_passes_test(is_librarian)
 def librarian_view(request):
     return render(request, 'librarian_view.html')
+
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'member_view.html')
