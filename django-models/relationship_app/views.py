@@ -80,14 +80,23 @@ def is_member(user):
      return user.userprofile.role == 'Member'
      
 
-@user_passes_test(is_admin)
+def admin_check(user):
+    return user.userprofile.role == 'Admin'
+
+@user_passes_test(admin_check)
 def admin_view(request):
     return render(request, 'admin_view.html')
 
-@user_passes_test(is_librarian)
-def librarian_view(request):
-    return render(request, 'relationship_app/librarian_view.html')
+def member_check(user):
+    return user.userprofile.role == 'Member'
 
-@user_passes_test(is_member)
+@user_passes_test(member_check)
 def member_view(request):
-    return render(request, 'relationship_app/member_view.html')
+    return render(request, 'member_view.html')
+
+def librarian_check(user):
+    return user.userprofile.role == 'Librarian'
+
+@user_passes_test(librarian_check)
+def librarian_view(request):
+    return render(request, 'librarian_view.html')
