@@ -7,7 +7,7 @@ def query_books_by_author(author_name):
 # List all books in the library
 def query_books_in_library(library_name):
     library = Library.objects.get(name=library_name)
-    return Book.objects.filter(library=library)
+    return library.books.all()
 
 # Retrieve the librarian for a library
 def query_Librarian_in_library(library_name):
