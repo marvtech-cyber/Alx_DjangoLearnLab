@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from .models import Book
 from .models import Library
 from django.views.generic.detail import DetailView
+from django.contrib.auth.decorators import user_passes_test
+
 
 #function based view to list all books
 def list_books(request):
@@ -64,3 +66,25 @@ def loginview(request):
 def logoutview(request):
     logout(request)
     return redirect('login_view')
+
+
+def admin_check(user):
+    return user.userprofile.role == 'Admin'
+
+@user_passes_test(admin_check)
+def admin_view(request):
+    return render(request, 'admin_view.html')
+
+def member_check(user):
+    return user.userprofile.role == 'Member'
+
+@user_passes_test(member_check)
+def member_view(request):
+    return render(request, 'member_view.html')
+
+def librarian_check(user):
+    return user.userprofile.role == 'Librarian'
+
+@user_passes_test(librarian_check)
+def librarian_view(request):
+    return render(request, 'librarian_view.html')
