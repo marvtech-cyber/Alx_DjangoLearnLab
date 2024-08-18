@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from .models import Book
 from .models import Library
 from django.views.generic.detail import DetailView
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required
@@ -72,34 +72,36 @@ def logoutview(request):
     return redirect('login_view')
 
 
+
+
+#Checks if user is Admin
 def is_admin(user):
-    return user.is_authenticated and user.userprofile.role == 'Admin'
+    return user.userprofile.role == 'Admin'
 
-def is_librarian(user):
-     return user.userprofile.role == 'Librarian'
-
-def is_member(user):
-     return user.userprofile.role == 'Member'
-     
-
-
+@login_required
 @user_passes_test(is_admin)
 def admin_view(request):
-    return render(request, 'relashionship_app/admins.html')
+    return render(request, 'relationship_app/admin_view.html')
 
-def member_check(user):
-    return user.userprofile.role == 'Member'
-
-@user_passes_test(member_check)
-def member_view(request):
-    return render(request, 'member_view.html')
-
-def librarian_check(user):
+#Checks if user is Librarian
+def is_librarian(user):
     return user.userprofile.role == 'Librarian'
 
-@user_passes_test(librarian_check)
+@login_required
+@user_passes_test(is_librarian)
+
 def librarian_view(request):
-    return render(request, 'librarian_view.html')
+    return render(request, 'relationship_app/librarian_view.html')
+
+#Checks if user is a Member
+def is_member(user):
+    return user.userprofile.role == 'Member'
+
+@login_required
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html')
+
 
 @permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
