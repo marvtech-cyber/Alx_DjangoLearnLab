@@ -82,8 +82,6 @@ def is_member(user):
      return user.userprofile.role == 'Member'
      
 
-def admin_check(user):
-    return user.userprofile.role == 'Admin'
 
 @user_passes_test(is_admin)
 def admin_view(request):
