@@ -22,6 +22,6 @@ class Book(models.Model):
     # Each book has a title, a year of publication, and an author, and this model allows us to store and retrieve that information.
     """
     title = models.CharField(max_length=100)
-    publication = models.IntegerField()
+    publication_year = models.IntegerField()
     author = models.ForeignKey(Author,on_delete= models.CASCADE, related_name='books' )
     
