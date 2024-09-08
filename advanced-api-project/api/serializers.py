@@ -29,7 +29,7 @@ class AuthorSerializer(serializers.ModelSerializer):
     # The nested BookSerializer is used to serialize the author's books,
     # and the "read_only=True" argument ensures that the books field is read-only.
     """
-    books = BookSerializer(many = True, read_only = True)
+    books = BookSerializer(many=True, read_only=True)
     class Meta:
         model = Author
         fields = ['name', 'books']
