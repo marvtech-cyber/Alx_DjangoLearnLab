@@ -56,6 +56,10 @@ class PostListView(ListView):
         context = super().get_context_data(**kwargs)
         context['delete_url'] = 'post_delete'
         return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['update_url'] = 'post_update'
+        return context
 
 class PostDetailView(DetailView):
     model = Post
@@ -66,7 +70,7 @@ class PostCreateView(CreateView):
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
-    success_url = 'blog/post_list/'
+    success_url = '/post_list/'
 
 class PostUpdateView(UpdateView):
     model = Post
