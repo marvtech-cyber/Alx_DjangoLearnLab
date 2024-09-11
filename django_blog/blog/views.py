@@ -60,6 +60,11 @@ class PostListView(ListView):
         context = super().get_context_data(**kwargs)
         context['update_url'] = 'post_update'
         return context
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['create_url'] = 'post_create'
+        return context
 
 class PostDetailView(DetailView):
     model = Post
