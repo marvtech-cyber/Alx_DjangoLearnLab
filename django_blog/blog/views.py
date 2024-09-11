@@ -3,8 +3,9 @@ from .forms import UserRegistrationForm, ProfileForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Profile
-
+from .models import Profile, Post
+from .forms import PostForm
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 def home(request):
     return render(request, 'blog/base.html')
 
@@ -44,3 +45,30 @@ def edit_profile_view(request):
         form = ProfileForm(instance=profile)
     
     return render(request, 'blog/edit_profile.html', {'form': form})
+
+class PostListView(ListView):
+    "a class based view to display all blog posts."
+    model = Post
+    template_name = 'blog/posts_lists.html'
+    context_object_name = 'posts'
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'
+
+class PostCreateView(CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+    success_url = 'blog/post_list/'
+
+class PostUpdateView(UpdateView):
+    model = Post
+    template_name = 'blog/post_form.html'
+    success_url = '/blog/post_list'
+
+class PostDeleteView(DeleteView):
+    model = Post
+    template_name = 'blog/post_confirm_delete.html'
+    success_url = '/blog/post_list'
