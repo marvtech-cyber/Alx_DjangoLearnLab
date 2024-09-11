@@ -52,6 +52,11 @@ class PostListView(ListView):
     template_name = 'blog/posts_lists.html'
     context_object_name = 'posts'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['delete_url'] = 'post_delete'
+        return context
+
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'
@@ -71,4 +76,4 @@ class PostUpdateView(UpdateView):
 class PostDeleteView(DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'
-    success_url = '/blog/post_list'
+    success_url = '/post_list'

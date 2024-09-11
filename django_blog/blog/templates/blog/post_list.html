@@ -10,6 +10,8 @@
                 <p>Author: {{post.author.username }}</p>
                 <p>Published:{{ post.published_date} }</p>
                 <a href="{% url 'post_detail' post.pk %}">View Post</a>
+                <a href="{% url 'post_update' post.pk %}">Edit Post</a>
+                <a href="{% url 'post_delete' post.pk %}">Delete Post</a>
                 
             </li>
         {% endfor %}
