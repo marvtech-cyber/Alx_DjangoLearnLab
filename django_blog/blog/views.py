@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
-from .forms import UserRegistrationForm
+from .forms import UserRegistrationForm, ProfileForm
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from .models import Profile
 
 def home(request):
     return render(request, 'blog/base.html')
@@ -20,3 +23,24 @@ def register(request):
     else:
         form = UserRegistrationForm()
     return render(request, 'blog/register.html', {'form': form})
+
+@login_required
+def profile_view(request):
+    user = request.user
+    profile = Profile.objects.get_or_create(user=user)[0]
+    return render(request, 'blog/profile.html', {'profile': profile})
+
+@login_required
+def edit_profile_view(request):
+    user = request.user
+    profile = Profile.objects.get_or_create(user=user)[0]
+    
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=profile)
+    
+    return render(request, 'blog/edit_profile.html', {'form': form})
