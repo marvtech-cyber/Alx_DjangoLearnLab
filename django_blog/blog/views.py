@@ -179,27 +179,27 @@ class PostSearchView(ListView):
     context_object_name = 'posts'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         query = self.request.GET.get('q')
         if query:
-            queryset = queryset.filter(
+            # Directly use Post.objects.filter() to filter the queryset
+            return Post.objects.filter(
                 Q(title__icontains=query) |
                 Q(content__icontains=query) |
                 Q(tags__name__icontains=query)
             ).distinct()
-        return queryset
+        return Post.objects.all()  # Return all posts if no query is provided
 
 class TagListView(ListView):
     model = Post
-    template_name = 'blog/tag_posts_list.html'  # Create a new template for this view
+    template_name = 'blog/tag_posts_list.html'
     context_object_name = 'posts'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        tag = self.kwargs.get('tag')  # Get the tag from the URL
+        tag = self.kwargs.get('tag')
         if tag:
-            queryset = queryset.filter(tags__name=tag)  # Filter posts by tag name
-        return queryset
+            # Directly use Post.objects.filter() to filter posts by tag
+            return Post.objects.filter(tags__name=tag)
+        return Post.objects.all()  # Return all posts if no tag is provided
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
