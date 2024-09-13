@@ -9,6 +9,7 @@ from .forms import PostForm, CommentForm
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 def home(request):
     return render(request, 'blog/base.html')
@@ -171,3 +172,36 @@ def post_detail(request, pk):
         'new_comment': new_comment,
         'comment_form': comment_form
     })
+
+class PostSearchView(ListView):
+    model = Post
+    template_name = 'blog/post_search.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct()
+        return queryset
+
+class TagListView(ListView):
+    model = Post
+    template_name = 'blog/tag_posts_list.html'  # Create a new template for this view
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        tag = self.kwargs.get('tag')  # Get the tag from the URL
+        if tag:
+            queryset = queryset.filter(tags__name=tag)  # Filter posts by tag name
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.kwargs.get('tag')  # Pass the current tag to the template
+        return context
