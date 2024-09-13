@@ -62,6 +62,12 @@ class PostListView(ListView):
         context['update_url'] = 'post_update'
         context['create_url'] = 'post_create'
         return context
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        tag = self.request.GET.get('tag')
+        if tag:
+            queryset = queryset.filter(tags_name = tag)
+        return queryset
 
     
     
@@ -91,6 +97,11 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['tags'] = ', '.join(tag.name for tag in self.object.tags.all())
+        return initial
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
