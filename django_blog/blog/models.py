@@ -7,6 +7,7 @@ class Post(models.Model):
     content = models.TextField()
     published_date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    tags = models.ManyToManyField('Tag', related_name='tag')
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -21,3 +22,6 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add= True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+class Tag(models.Model):
+    name = models.CharField(max_length=100, unique=True)
