@@ -1,44 +1,24 @@
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from rest_framework.authtoken.models import Token
+from rest_framework import serializers  # Importing serializers from rest_framework
+from django.contrib.auth import get_user_model  # Importing get_user_model from contrib.auth
+from rest_framework.authtoken.models import Token  # Importing Token model from rest_framework.authtoken
 
-CustomUser = get_user_model()
+User = get_user_model()  # Getting the User model
 
-class UserSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the CustomUser model.
-    """
-    class Meta:
-        model = CustomUser
-        fields = ('id', 'username', 'email', 'password', 'bio', 'profile_picture')
-        extra_kwargs = {'password': {'write_only': True}}
+class UserSerializer(serializers.ModelSerializer):  # Defining a serializer for the User model
+    password = serializers.CharField()  # Including password field as a CharField
+    token = serializers.CharField(read_only=True)  # Including token field as a CharField, read_only set to True
 
-    def create(self, validated_data):
-        """
-        Create a new user instance.
-        """
-        user = get_user_model().objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            bio=validated_data.get('bio', ''),
-            profile_picture=validated_data.get('profile_picture', '')
-        )
-        return user
+    class Meta:  # Defining the Meta class for the serializer
+        model = User  # Setting the User model
+        fields = ('id', 'username', 'email', 'password', 'bio', 'profile_picture', 'token')  # Setting the fields to include in the serializer
 
-class TokenSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Token model.
-    """
-    token = serializers.CharField()
+    def create(self, validated_data):  # Defining the create method for the serializer
+        user = get_user_model().objects.create_user(**validated_data)  # Creating a new user with the validated data
+        Token.objects.create(user=user)  # Creating a new token for the user
+        return user  # Returning the newly created user
 
-    class Meta:
-        model = Token
-        fields = ('key',)
-
-    def create(self, validated_data):
-        """
-        Create a new token instance.
-        """
-        token = Token.objects.create(user=self.context['request'].user)
-        return token
+    def token_represetation(self, instance):  # Defining the token_representation method for the serializer
+        ret = super().token_representation(instance)  # Getting the default representation of the instance
+        token, _ = Token.objects.get_or_create(user=instance)  # Getting or creating a token for the user
+        ret['token'] = token.key  # Adding the token key to the representation
+        return ret  # Returning the updated representation
