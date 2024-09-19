@@ -25,3 +25,39 @@ class ProfileView(generics.RetrieveUpdateAPIView):  # RetrieveUpdateAPIView for 
     def get_object(self):  # Overriding get_object method to return the current user object
         return self.request.user
 
+class FollowUserView(generics.GenericAPIView):
+    # Only authenticated users are allowed to access this view
+    permission_classes = [permissions.IsAuthenticated]
+    
+    # Queryset for getting all CustomUser objects
+    queryset = CustomUser.objects.all()
+    
+    def post(self, request, *args, **kwargs):
+        # Get the user object for the user to follow
+        user_to_follow = self.get_object()
+        
+        # Check if the current user is not already following the user to follow
+        if request.user.following != user_to_follow:
+            # Add the user to follow to the current user's following list
+            request.user.following.add(user_to_follow)
+            # Return a success response
+            return Response(status=status.HTTP_200_OK)
+        # If the user is already being followed, return a bad request response
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class UnfollowUserView(generics.GenericAPIView):
+    # Only authenticated users are allowed to unfollow other users
+    permission_classes = [permissions.IsAuthenticated]
+    
+    # Get all CustomUser objects
+    queryset = CustomUser.objects.all()
+    
+    def post(self, request, *args, **kwargs):
+        # Get the user to unfollow by using the get_object() method
+        user_to_unfollow = self.get_object()
+        
+        # Remove the user from the request.user's following list
+        request.user.following.remove(user_to_unfollow)
+        
+        # Return a success response with a 200 status code
+        return Response(status=status.HTTP_200_OK)
