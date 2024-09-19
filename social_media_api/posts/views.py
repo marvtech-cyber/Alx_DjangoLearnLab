@@ -51,6 +51,25 @@ class CommentViewSet(viewsets.ModelViewSet):
         # Get the post associated with the comment
         post = Post.objects.get(pk=self.kwargs['post_pk'])
        
-
+class FeedView(generics.ListAPIView):
+    # Specify the serializer class for the Post model
+    serializer_class = PostSerializer
+    
+    # Only authenticated users are allowed to view the feed
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        # Get the current user from the request object
+        user = self.request.user
+        
+        # Get all the users that the current user is following
+        following_users = user.following.all()
+        
+        # Filter the Post queryset based on the authors in the following_users list
+        # and order the queryset by the created_at field in descending order
+        queryset = Post.objects.filter(author__in = following_users).order_by('-created_at')
+        
+        # Return the filtered and ordered queryset
+        return queryset
 
  
