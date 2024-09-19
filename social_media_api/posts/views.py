@@ -67,9 +67,8 @@ class FeedView(generics.ListAPIView):
         
         # Filter the Post queryset based on the authors in the following_users list
         # and order the queryset by the created_at field in descending order
-        queryset = Post.objects.filter(author__in = following_users).order_by('-created_at')
+        queryset = Post.objects.filter(author__in=following_users).order_by('-created_at')
         
         # Return the filtered and ordered queryset
         return queryset
 
- 
