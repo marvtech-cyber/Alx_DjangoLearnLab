@@ -12,6 +12,7 @@ from .permissions import IsAuthorOrReadOnly
 from rest_framework.response import Response
 # Import the action decorator from Django Rest Framework
 from rest_framework.decorators import action
+from notifications.models import Notification
 
 # Define a viewset for Post objects
 class PostViewSet(viewsets.ModelViewSet):
@@ -32,7 +33,47 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Save the post with the current user as the author
         serializer.save(author=self.request.user)
+    
+
+    @action(detail=True, methods=['post'])
+    def like(self, request, pk=None):
+        # Get the post object
+        post = self.get_object()
         
+        # Get the user who is liking the post
+        user = request.user
+        
+        # Check if a Like object already exists for this user and post
+        like, created = Like.objects.get_or_create(user=user, post=post)
+        
+        if created:
+            # If a Like object was created, it means the user hasn't liked the post before
+            # So create a new notification for the post author
+            Notification.objects.create(
+                recipient=post.author,  # The post author
+                actor=user,  # The user who liked the post
+                verb='liked',  # The action taken
+                target=post  # The post that was liked
+            )
+            return Response({'status': 'post liked'}, status=status.HTTP_201_CREATED)
+        return Response({'status': 'post already liked'}, status=status.HTTP_200_OK)
+
+@action(detail=True, methods=['post'])
+def unlike(self, request, pk=None):
+    # Get the post object
+    post = self.get_object()
+    
+    # Get the user who is unliking the post
+    user = request.user
+    
+    # Get the Like object for this user and post (if it exists)
+    like = Like.objects.filter(user=user, post=post).first()
+    
+    if like:
+        # If a Like object was found, delete it
+        like.delete()
+        return Response({'status': 'post unliked'}, status=status.HTTP_200_OK)
+    return Response({'status': 'post not liked'}, status=status.HTTP_400_BAD_REQUEST)
   
 
 # Define a viewset for Comment objects
