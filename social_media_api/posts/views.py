@@ -58,22 +58,22 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response({'status': 'post liked'}, status=status.HTTP_201_CREATED)
         return Response({'status': 'post already liked'}, status=status.HTTP_200_OK)
 
-@action(detail=True, methods=['post'])
-def unlike(self, request, pk=None):
-    # Get the post object
-    post = self.get_object()
-    
-    # Get the user who is unliking the post
-    user = request.user
-    
-    # Get the Like object for this user and post (if it exists)
-    like = Like.objects.filter(user=user, post=post).first()
-    
-    if like:
-        # If a Like object was found, delete it
-        like.delete()
-        return Response({'status': 'post unliked'}, status=status.HTTP_200_OK)
-    return Response({'status': 'post not liked'}, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=['post'])
+    def unlike(self, request, pk=None):
+        # Get the post object
+        post = self.get_object()
+        
+        # Get the user who is unliking the post
+        user = request.user
+        
+        # Get the Like object for this user and post (if it exists)
+        like = Like.objects.filter(user=user, post=post).first()
+        
+        if like:
+            # If a Like object was found, delete it
+            like.delete()
+            return Response({'status': 'post unliked'}, status=status.HTTP_200_OK)
+        return Response({'status': 'post not liked'}, status=status.HTTP_400_BAD_REQUEST)
   
 
 # Define a viewset for Comment objects
@@ -113,3 +113,38 @@ class FeedView(generics.ListAPIView):
         # Return the filtered and ordered queryset
         return queryset
 
+class LikeViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, pk=None):
+        # Get the post object with the given pk
+        post = generics.get_object_or_404(Post, pk=pk)
+        # Get or create a Like object for the current user and the post
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        # If a new Like object was created
+        if created:
+            # Create a new Notification object for the post author
+            Notification.objects.create(
+                recipient=post.author,  # The recipient of the notification
+                actor=request.user,  # The user who liked the post
+                verb='liked',  # The verb for the notification
+                target=post  # The target object for the notification
+            )
+            # Return a response indicating that the post was liked
+            return Response({'status': 'post liked'}, status=status.HTTP_201_CREATED)
+        # If the Like object already existed
+        return Response({'status': 'post already liked'}, status=status.HTTP_200_OK)
+
+    def destroy(self, request, pk=None):
+        # Get the post object with the given pk
+        post = generics.get_object_or_404(Post, pk=pk)
+        # Get the Like object for the current user and the post
+        like = Like.objects.filter(user=request.user, post=post).first()
+        # If a Like object was found
+        if like:
+            # Delete the Like object
+            like.delete()
+            # Return a response indicating that the post was unliked
+            return Response({'status': 'post unliked'}, status=status.HTTP_200_OK)
+        # If no Like object was found
+        return Response({'status': 'post not liked'}, status=status.HTTP_400_BAD_REQUEST)
